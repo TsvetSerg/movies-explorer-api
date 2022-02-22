@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
+const limiter = require('./method/limiter');
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
 const authoriz = require('./middlewares/auth');
@@ -13,7 +14,7 @@ const app = express();
 // app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect('mongodb://localhost:27017/moviesdb', {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 });
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(limiter);
 app.use(requestLogger);
 
 app.post('/signup', celebrate({
