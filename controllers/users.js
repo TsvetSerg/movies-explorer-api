@@ -9,11 +9,9 @@ const NotFoundError = require('../errors/NotFoundError');
 const { JWT_SECRET = 'VERY_SECRET_JWT' } = process.env;
 
 const createUser = (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email } = req.body;
   bcrypt.hash(req.body.password, 10)
-    .then((hash) => {
-      User.create({ name, email, password: hash });
-    })
+    .then((hash) => User.create({ name, email, password: hash }))
     .then(() => res.status(200).send({ name, email }))
     .catch((err) => {
       if (err.name === 'MongoServerError' && err.code === 11000) {

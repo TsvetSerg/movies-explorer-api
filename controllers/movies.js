@@ -2,6 +2,7 @@ const Movie = require('../models/movie');
 const BadRequest = require('../errors/BadRequest');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const ConflictError = require('../errors/ConflictError');
 
 const createMovie = async (req, res, next) => {
   const {
@@ -16,7 +17,6 @@ const createMovie = async (req, res, next) => {
     movieId,
     nameRU,
     nameEN,
-    owner
   } = req.body;
   try {
     const movie = await Movie.create({
@@ -37,6 +37,9 @@ const createMovie = async (req, res, next) => {
   } catch (err) {
     if (err.name === 'ValidationError') {
       next(new BadRequest('Переданы некорректные данные.'));
+    }
+    if (err.name === 'MongoServerError' && err.code === 11000) {
+      next(new ConflictError('Фильм с данным ID уже существует.'));
     }
     next(err);
   }
