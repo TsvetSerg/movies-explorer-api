@@ -24,7 +24,8 @@ const createUser = (req, res, next) => {
     });
 };
 
-const updateProfile = async (req, res, next) => { // Обновление профия
+// Обновление профия
+const updateProfile = async (req, res, next) => {
   try {
     const { name, email } = req.body;
 

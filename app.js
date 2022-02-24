@@ -9,12 +9,18 @@ const router = require('./routes');
 const handelError = require('./middlewares/handelError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000, NODE_ENV, MONGO_URL = 'DEFAULT_URL' } = process.env;
-const app = express();
-// app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const {
+  PORT = 3000,
+  NODE_ENV,
+  MONGO_URL,
+  DEFAULT_URL = 'mongodb://localhost:27017/moviesdb',
+} = process.env;
 
-mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27017/moviesdb', {
+const app = express();
+app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : DEFAULT_URL, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 });
