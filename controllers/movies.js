@@ -37,11 +37,11 @@ const createMovie = async (req, res, next) => {
   } catch (err) {
     if (err.name === 'ValidationError') {
       next(new BadRequest('Переданы некорректные данные.'));
-    }
-    if (err.name === 'MongoServerError' && err.code === 11000) {
+    } else if (err.name === 'MongoServerError' && err.code === 11000) {
       next(new ConflictError('Фильм с данным ID уже существует.'));
+    } else {
+      next(err);
     }
-    next(err);
   }
 };
 
@@ -57,7 +57,7 @@ const getAllMovies = async (req, res, next) => {
 const deletMovie = (req, res, next) => {
   const { _id } = req.params;
   Movie.findById(_id)
-    .orFail(() => new Error('NotFound'))
+    .orFail(() => new NotFoundError('Фильм по данному ID не найден.'))
     .then((movie) => {
       if (req.user._id.toString() === movie.owner.toString()) {
         movie.remove()
@@ -66,20 +66,15 @@ const deletMovie = (req, res, next) => {
           })
           .catch(next);
       } else {
-        throw new Error('AccessError');
+        throw new ForbiddenError('Нельзя удалять чужой фильм.');
       }
     })
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('Фильм по данному ID не найден.'));
-      }
       if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные.'));
+      } else {
+        next(err);
       }
-      if (err.message === 'AccessError') {
-        next(new ForbiddenError('Нельзя удалять чужой фильм.'));
-      }
-      next(err);
     });
 };
 

@@ -16,11 +16,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'MongoServerError' && err.code === 11000) {
         next(new ConflictError('Пользователь с данным email уже существует'));
-      }
-      if (err.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         next(new BadRequest('Введены некорректные данные!'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -37,22 +37,19 @@ const updateProfile = async (req, res, next) => { // Обновление про
   } catch (err) {
     if (err.name === 'ValidationError') {
       next(new BadRequest('Переданы некорректные данные при обновлении профиля.'));
+    } else if (err.name === 'MongoServerError' && err.code === 11000) {
+      next(new ConflictError('Пользователь с данным email уже существует'));
+    } else {
+      next(err);
     }
-    next(err);
   }
 };
 
 const getProfile = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => new Error('NotFound'))
+    .orFail(() => new NotFoundError('Данный id не найден'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные.'));
-      }
-      if (err.message === 'NotFound') {
-        next(new NotFoundError('Данный id не найден'));
-      }
       next(err);
     });
 };
@@ -67,8 +64,9 @@ const login = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new LoginError('передан неверный логин или пароль.'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 

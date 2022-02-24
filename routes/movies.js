@@ -13,7 +13,7 @@ routerMovie.post('/', celebrate({
   body: Joi.object().keys({
     country: Joi.string().required().min(2),
     director: Joi.string().required().min(2),
-    duration: Joi.string().required().min(2),
+    duration: Joi.number().required().min(2),
     year: Joi.string().required().min(2),
     description: Joi.string().required().min(2),
     image: Joi.string().required().custom(validUrl),

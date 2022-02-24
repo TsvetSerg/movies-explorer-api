@@ -1,20 +1,20 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
 const limiter = require('./method/limiter');
 const router = require('./routes');
-const { createUser, login } = require('./controllers/users');
-const authoriz = require('./middlewares/auth');
 const handelError = require('./middlewares/handelError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, NODE_ENV, MONGO_URL = 'DEFAULT_URL' } = process.env;
 const app = express();
 // app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27017/moviesdb', {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 });
@@ -29,32 +29,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(limiter);
 app.use(requestLogger);
-
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(4),
-  }),
-}), createUser);
-
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(4),
-  }),
-}), login);
-
-app.use(authoriz);
-
-app.use(router);
+app.use(limiter);
+app.use(helmet());
 app.use(express.json());
 
-app.use(errorLogger);
+app.use(router);
 
+app.use(errorLogger);
 app.use(errors());
 app.use(handelError);
-
 app.listen(PORT);
