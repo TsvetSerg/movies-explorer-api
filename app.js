@@ -12,7 +12,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const {
   PORT = 3000,
   NODE_ENV,
-  MONGO_URL = 'mongodb://localhost:27017/moviesdb',
+  MONGO_URL,
 } = process.env;
 
 const app = express();
