@@ -19,7 +19,12 @@ const app = express();
 app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27017/moviesdb', {
+// mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27017/moviesdb', {
+//   useUnifiedTopology: true,
+//   useNewUrlParser: true,
+// });
+
+mongoose.connect('mongodb://localhost:27017/moviesdb', {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 });
