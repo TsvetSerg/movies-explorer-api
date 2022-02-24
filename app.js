@@ -12,15 +12,14 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const {
   PORT = 3000,
   NODE_ENV,
-  MONGO_URL,
-  DEFAULT_URL = 'mongodb://localhost:27017/moviesdb',
+  MONGO_URL = 'mongodb://localhost:27017/moviesdb',
 } = process.env;
 
 const app = express();
 app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : DEFAULT_URL, {
+mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27017/moviesdb', {
   useUnifiedTopology: true,
   useNewUrlParser: true,
 });
